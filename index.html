@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI时代数据治理成熟度自测</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 16px;
+        }
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+        /* 标题区 */
+        .header {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        /* 进度条 */
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: #fff;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            color: #fff;
+            font-size: 12px;
+            text-align: right;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+        /* 问卷卡片 */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .card .dim-label {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card .q-num {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        .card h2 {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        /* 选项 */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            display: flex;
+            align-items: flex-start;
+            padding: 14px 16px;
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f6ff;
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: #fff;
+        }
+        .option .opt-letter {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .option.selected .opt-letter {
+            background: rgba(255,255,255,0.3);
+        }
+        .option .opt-text {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        /* 导航按钮 */
+        .nav-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-prev {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        /* 结果页 */
+        .result-page {
+            display: none;
+        }
+        .result-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .result-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .result-subtitle {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 24px;
+        }
+        .score-display {
+            font-size: 64px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        .score-label {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 24px;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto 24px;
+        }
+        /* 行业对比 */
+        .industry-comparison {
+            background: #f8f6ff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .industry-comparison h4 {
+            font-size: 13px;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+        .compare-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .compare-bar .label {
+            width: 70px;
+            font-size: 12px;
+            color: #666;
+        }
+        .compare-bar .bar-bg {
+            flex: 1;
+            height: 20px;
+            background: #e8e8e8;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .compare-bar .bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+        .compare-bar .bar-value {
+            width: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            text-align: right;
+        }
+        .compare-bar.user .bar-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .compare-bar.avg .bar-fill {
+            background: #999;
+        }
+        /* 诊断 */
+        .diagnosis-box {
+            background: #f8f6ff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .diagnosis-box h3 {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+        .diagnosis-box p {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.7;
+        }
+        /* 分享区域 */
+        .share-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .share-section h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        .share-section p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+        .share-btn {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid #fff;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .share-btn:hover {
+            background: #fff;
+            color: #f5576c;
+        }
+        .share-btn.shared {
+            background: #fff;
+            color: #f5576c;
+        }
+        .share-btn.shared::after {
+            content: ' ✓ 已解锁';
+        }
+        .share-hint {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-top: 8px;
+        }
+        /* 加微信区域 */
+        .wechat-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .wechat-box h4 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        .wechat-box img {
+            width: 160px;
+            height: 160px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .wechat-box .tip {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        .share-tip {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 20px;
+        }
+        /* 成功提示 */
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4caf50;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .success-toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-toast" id="toast">保存成功</div>
+
+    <div class="container">
+        <!-- 问卷页 -->
+        <div id="quiz-page">
+            <div class="header">
+                <h1>AI时代数据治理成熟度自测</h1>
+                <p>基于AI-Native成熟度模型，评估您的数据体系</p>
+                <div class="badge">v2.3 专业版 · 15题 · 3分钟完成</div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progress-text">1 / 15</div>
+
+            <div class="card">
+                <div class="dim-label" id="dim-label">维度一：数据质量与基础底座</div>
+                <div class="q-num" id="q-num">第1题</div>
+                <h2 id="question-text"></h2>
+                <div class="options" id="options-container"></div>
+            </div>
+
+            <div class="nav-btns">
+                <button class="btn btn-prev" id="btn-prev" disabled onclick="prevQuestion()">上一题</button>
+                <button class="btn btn-next" id="btn-next" disabled onclick="nextQuestion()">下一题</button>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div id="result-page" class="result-page">
+            <div class="header">
+                <h1>诊断完成</h1>
+                <p>您的数据治理成熟度评估结果</p>
+            </div>
+            <div class="result-card">
+                <div class="result-title">测评提交成功</div>
+                <div class="result-subtitle">系统已基于您的作答生成初步诊断</div>
+
+                <div class="score-display" id="total-score">0</div>
+                <div class="score-label">综合得分（满分100）</div>
+
+                <!-- 行业对比 -->
+                <div class="industry-comparison">
+                    <h4>📊 与行业平均水平对比</h4>
+                    <div class="compare-bar user">
+                        <span class="label">您的得分</span>
+                        <div class="bar-bg">
+                            <div class="bar-fill" id="user-bar" style="width: 0%"></div>
+                        </div>
+                        <span class="bar-value" id="user-score-text">0分</span>
+                    </div>
+                    <div class="compare-bar avg">
+                        <span class="label">行业平均</span>
+                        <div class="bar-bg">
+                            <div class="bar-fill" style="width: 58%"></div>
+                        </div>
+                        <span class="bar-value">58分</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="radar-chart"></canvas>
+                </div>
+
+                <div class="diagnosis-box">
+                    <h3>🔍 初步诊断</h3>
+                    <p id="diagnosis-text"></p>
+                </div>
+
+                <!-- 私信引导 -->
+                <div class="share-section">
+                    <h3>📩 获取完整版深度报告</h3>
+                    <p>截图本页面 + 私信发送「报告」给专家<br>可获得《深度诊断报告》与《行业对标数据》</p>
+                    <button class="share-btn" id="share-btn" onclick="handleShare()">
+                        分享到朋友圈/群
+                    </button>
+                    <div class="share-hint">前20名截图发来的朋友，可获1对1专家解读机会</div>
+                </div>
+
+                <!-- 加微信 -->
+                <div class="wechat-box">
+                    <h4>👇 也可以直接扫码添加专家微信</h4>
+                    <img src="wechat-qr.png" alt="微信二维码" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                    <p class="tip" style="display:none;">请替换为您的微信二维码图片</p>
+                    <p class="tip">添加时请备注「数据治理测评」</p>
+                </div>
+
+                <p class="share-tip">💡 如果对您有帮助，欢迎分享给需要的朋友</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 配置区 ==========
+        // 后端API地址（留空则使用本地存储）
+        const API_URL = 'https://your-api.com/api/submit';
+        // 行业平均分
+        const INDUSTRY_AVG = 58;
+        // =================================
+
+        // 题目数据
+        const questions = [
+            {
+                dim: "维度一：数据质量与基础底座",
+                text: "核心业务数据（如客户、交易数据）的质量管控现状？",
+                options: [
+                    { letter: "A", text: "缺乏管控，依赖业务事后反馈报错" },
+                    { letter: "B", text: "仅关注基础完整性（如字段不为空），缺乏一致性校验" },
+                    { letter: "C", text: "建立了多维规则，靠离线批量检核" },
+                    { letter: "D", text: "具备实时质量监控，报告自动推送责任人" }
+                ]
+            },
+            {
+                dim: "维度一：数据质量与基础底座",
+                text: "报表数据异常时，定位根因并修复的平均耗时（MTTR）？",
+                options: [
+                    { letter: "A", text: "数天甚至数周，靠人工沟通" },
+                    { letter: "B", text: "1-2天，依赖资深工程师写SQL排查" },
+                    { letter: "C", text: "数小时内，有血缘工具辅助" },
+                    { letter: "D", text: "1小时内，具备自动化根因分析能力" }
+                ]
+            },
+            {
+                dim: "维度一：数据质量与基础底座",
+                text: "数据标准的落地执行方式？",
+                options: [
+                    { letter: "A", text: "无统一标准，系统间“同名不同义”普遍" },
+                    { letter: "B", text: "有文档标准，但系统录入缺乏强制约束" },
+                    { letter: "C", text: "核心主数据已标准化，长尾数据仍有漂移" },
+                    { letter: "D", text: "标准嵌入开发流程，不合规数据无法进入数仓" }
+                ]
+            },
+            {
+                dim: "维度二：AI应用与智能化水平",
+                text: "非结构化数据（合同、工单、纪要）的处理状态？",
+                options: [
+                    { letter: "A", text: "处于“黑盒”状态，难以被系统化利用" },
+                    { letter: "B", text: "依靠人工或外包手工打标签" },
+                    { letter: "C", text: "使用规则引擎或模板半自动化提取" },
+                    { letter: "D", text: "引入NLP或大模型技术，自动结构化" }
+                ]
+            },
+            {
+                dim: "维度二：AI应用与智能化水平",
+                text: "在数据治理核心环节（分类分级、质检），AI技术的应用程度？",
+                options: [
+                    { letter: "A", text: "几乎为零，完全依赖人工" },
+                    { letter: "B", text: "个别场景尝试工具辅助，未成体系" },
+                    { letter: "C", text: "多个环节引入算法辅助人工决策" },
+                    { letter: "D", text: "核心治理环节常态化使用AI替代人工" }
+                ]
+            },
+            {
+                dim: "维度二：AI应用与智能化水平",
+                text: "业务人员获取数据进行分析的交互方式？",
+                options: [
+                    { letter: "A", text: "向IT提需求，排期等待开发" },
+                    { letter: "B", text: "查看固定BI报表，无法自由探索" },
+                    { letter: "C", text: "通过自助分析平台（拖拽式BI）获取数据" },
+                    { letter: "D", text: "支持自然语言对话（ChatBI），直接获取结论" }
+                ]
+            },
+            {
+                dim: "维度三：组织协同与数据文化",
+                text: "业务部门对数据治理的配合度与认责情况？",
+                options: [
+                    { letter: "A", text: "非常抵触，认为是IT增加工作量" },
+                    { letter: "B", text: "被动配合，推一下动一下" },
+                    { letter: "C", text: "核心业务线有指定数据专员，但缺乏考核" },
+                    { letter: "D", text: "责权清晰，数据质量纳入业务KPI考核" }
+                ]
+            },
+            {
+                dim: "维度三：组织协同与数据文化",
+                text: "企业内部的数据素养与决策文化？",
+                options: [
+                    { letter: "A", text: "决策靠经验直觉，缺乏数据氛围" },
+                    { letter: "B", text: "管理层有意识，基层缺乏分析技能" },
+                    { letter: "C", text: "定期开展培训，业务具备基础分析能力" },
+                    { letter: "D", text: "全员数据驱动，具备完善的AI工具推广机制" }
+                ]
+            },
+            {
+                dim: "维度三：组织协同与数据文化",
+                text: "贵司数据治理组织或岗位的实际运行现状？",
+                options: [
+                    { letter: "A", text: "没有，所有工作由IT兼职" },
+                    { letter: "B", text: "有名义负责人，职责划分不清" },
+                    { letter: "C", text: "业务线设有兼职数据专员，定期参会" },
+                    { letter: "D", text: "建立实体化治理团队，业务有专职接口人" }
+                ]
+            },
+            {
+                dim: "维度四：数据资产运营与价值",
+                text: "企业内部数据资产的共享与复用机制？",
+                options: [
+                    { letter: "A", text: "数据孤岛严重，跨部门获取需线下拷贝" },
+                    { letter: "B", text: "有共享平台，但数据滞后，业务不敢用" },
+                    { letter: "C", text: "形成资产目录，调用流程规范但繁琐" },
+                    { letter: "D", text: "资产服务化程度高，调用频繁且有价值记录" }
+                ]
+            },
+            {
+                dim: "维度四：数据资产运营与价值",
+                text: "是否具备数据资产价值评估与量化体系？",
+                options: [
+                    { letter: "A", text: "无概念，数据被视为IT副产品" },
+                    { letter: "B", text: "尝试评估，缺乏公认模型，难以服众" },
+                    { letter: "C", text: "建立初步评估体系，定期出报告" },
+                    { letter: "D", text: "资产价值与经营指标实现关联映射" }
+                ]
+            },
+            {
+                dim: "维度四：数据资产运营与价值",
+                text: "数据治理投入的产出比（ROI）呈现何种状态？",
+                options: [
+                    { letter: "A", text: "纯成本中心，无法提供可量化的产出证明" },
+                    { letter: "B", text: "能列举间接收益，难量化业务价值" },
+                    { letter: "C", text: "试点项目验证了直接价值，以此争取预算" },
+                    { letter: "D", text: "建立常态化价值核算，投入与收益形成飞轮" }
+                ]
+            },
+            {
+                dim: "维度五：安全合规与风险控制",
+                text: "敏感数据（隐私、机密）的安全防护现状？",
+                options: [
+                    { letter: "A", text: "靠制度与人工，权限粗放" },
+                    { letter: "B", text: "基础静态脱敏与加密，难覆盖全链路" },
+                    { letter: "C", text: "细粒度权限管控，开发测试环境落实脱敏" },
+                    { letter: "D", text: "动态脱敏、水印溯源及全链路审计能力" }
+                ]
+            },
+            {
+                dim: "维度五：安全合规与风险控制",
+                text: "面对数据安全法规，企业的合规与响应现状？",
+                options: [
+                    { letter: "A", text: "尚未系统建设，靠事后补救" },
+                    { letter: "B", text: "为应付检查整改，缺乏常态化审计" },
+                    { letter: "C", text: "建立合规流程与定期审计，响应依赖人工" },
+                    { letter: "D", text: "合规内嵌流程，具备自动化审计与阻断" }
+                ]
+            },
+            {
+                dim: "维度五：安全合规与风险控制",
+                text: "当发生数据泄露或违规访问风险时，企业的响应机制？",
+                options: [
+                    { letter: "A", text: "事后才发现，缺乏预警，仅做被动补救" },
+                    { letter: "B", text: "定期人工审计，无法实时阻断" },
+                    { letter: "C", text: "具备基础告警，误报率高，依赖人工研判" },
+                    { letter: "D", text: "实时态势感知，自动识别异常并触发熔断" }
+                ]
+            }
+        ];
+
+        // 状态
+        let currentIndex = 0;
+        let answers = new Array(15).fill(null);
+        let chart = null;
+        let isShared = false;
+
+        // 渲染题目
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            document.getElementById("dim-label").textContent = q.dim;
+            document.getElementById("q-num").textContent = `第${currentIndex + 1}题`;
+            document.getElementById("question-text").textContent = q.text;
+
+            const container = document.getElementById("options-container");
+            container.innerHTML = q.options.map((opt, i) => `
+                <div class="option ${answers[currentIndex] === i ? 'selected' : ''}" onclick="selectOption(${i})">
+                    <div class="opt-letter">${opt.letter}</div>
+                    <div class="opt-text">${opt.text}</div>
+                </div>
+            `).join('');
+
+            const progress = ((currentIndex + 1) / 15) * 100;
+            document.getElementById("progress-fill").style.width = progress + '%';
+            document.getElementById("progress-text").textContent = `${currentIndex + 1} / 15`;
+
+            document.getElementById("btn-prev").disabled = currentIndex === 0;
+            document.getElementById("btn-next").disabled = answers[currentIndex] === null;
+
+            const btnNext = document.getElementById("btn-next");
+            btnNext.textContent = currentIndex === 14 ? "查看结果" : "下一题";
+        }
+
+        function selectOption(index) {
+            answers[currentIndex] = index;
+            renderQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < 14) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function calculateScores() {
+            const dimMap = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [9, 10, 11],
+                [12, 13, 14]
+            ];
+
+            const scores = dimMap.map((indices) => {
+                const total = indices.reduce((sum, i) => sum + (answers[i] + 1), 0);
+                return Math.round((total / 12) * 100);
+            });
+
+            const totalScore = Math.round(scores.reduce((a, b) => a + b, 0) / 5);
+            return { scores, totalScore };
+        }
+
+        function generateDiagnosis(scores) {
+            const dimNames = ["数据基础", "AI应用", "组织协同", "资产运营", "安全合规"];
+            let maxIdx = 0, minIdx = 0;
+            scores.forEach((s, i) => {
+                if (s > scores[maxIdx]) maxIdx = i;
+                if (s < scores[minIdx]) minIdx = i;
+            });
+
+            let diagnosis = "";
+            if (scores[minIdx] < 40) {
+                diagnosis = `您的企业在【${dimNames[minIdx]}】维度存在明显短板，这与【${dimNames[maxIdx]}】的高分形成较大反差。这通常意味着：您的数据底座已初步就绪，但关键环节的能力断层正在拖累整体效能。建议优先补齐【${dimNames[minIdx]}】短板，可参考深度诊断报告中的具体改进路径。`;
+            } else if (scores[minIdx] < 60) {
+                diagnosis = `您的企业在各维度表现相对均衡，【${dimNames[minIdx]}】有一定提升空间。整体处于"数字化转型中期"阶段，下一步关键是找到AI与业务融合的切入点。`;
+            } else {
+                diagnosis = `您的企业数据治理成熟度较高，各维度均衡发展，【${dimNames[maxIdx]}】表现尤为突出。建议关注持续迭代与知识沉淀，将领先优势固化为组织核心竞争力。`;
+            }
+            return diagnosis;
+        }
+
+        function showResult() {
+            document.getElementById("quiz-page").style.display = "none";
+            document.getElementById("result-page").style.display = "block";
+
+            const { scores, totalScore } = calculateScores();
+
+            document.getElementById("total-score").textContent = totalScore;
+            document.getElementById("diagnosis-text").textContent = generateDiagnosis(scores);
+
+            // 行业对比动画
+            setTimeout(() => {
+                document.getElementById("user-bar").style.width = totalScore + '%';
+                document.getElementById("user-score-text").textContent = totalScore + '分';
+            }, 300);
+
+            // 雷达图
+            const ctx = document.getElementById("radar-chart").getContext("2d");
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: dimNames,
+                    datasets: [{
+                        label: '您的得分',
+                        data: scores,
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: { stepSize: 25, font: { size: 10 }, backdropColor: 'transparent' },
+                            pointLabels: { font: { size: 12, weight: '500' }, color: '#333' },
+                            grid: { color: 'rgba(0,0,0,0.1)' },
+                            angleLines: { color: 'rgba(0,0,0,0.1)' }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // 分享功能
+        function handleShare() {
+            // 尝试使用 Web Share API（移动端）
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AI时代数据治理成熟度自测',
+                    text: '我刚测了数据治理成熟度，得分不错，你也来试试！',
+                    url: window.location.href
+                }).then(() => {
+                    setShared();
+                }).catch(() => {
+                    // 用户取消或不支持，使用剪贴板
+                    copyLink();
+                });
+            } else {
+                // 复制链接
+                copyLink();
+            }
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                setShared();
+                showToast('链接已复制，请粘贴到朋友圈或群');
+            }).catch(() => {
+                showToast('请手动复制页面链接分享');
+            });
+        }
+
+        function setShared() {
+            isShared = true;
+            const btn = document.getElementById('share-btn');
+            btn.classList.add('shared');
+            btn.textContent = '已分享（截图发给专家领取报告）';
+localStorage.setItem('assessment_shared', 'true');
+        }
+
+        // 显示提示
+        const dimNames = ["数据基础", "AI应用", "组织协同", "资产运营", "安全合规"];
+        renderQuestion();
+    </script>
+</body>
+</html>
