@@ -380,7 +380,7 @@
             <div class="progress-text" id="progress-text">1 / 15</div>
 
             <div class="card">
-                <div class="dim-label" id="dim-label">维度一：数据质量与基础底座</div>
+                <div class="dim-label" id="dim-label">维度一：数据质量</div>
                 <div class="q-num" id="q-num">第1题</div>
                 <h2 id="question-text"></h2>
                 <div class="options" id="options-container"></div>
@@ -465,9 +465,9 @@
         // =================================
 
         // 题目数据
-        const questions = [
+const questions = [
             {
-                dim: "维度一：数据质量与基础底座",
+                dim: "维度一：数据质量",
                 text: "核心业务数据（如客户、交易数据）的质量管控现状？",
                 options: [
                     { letter: "A", text: "缺乏管控，依赖业务事后反馈报错" },
@@ -477,7 +477,7 @@
                 ]
             },
             {
-                dim: "维度一：数据质量与基础底座",
+                dim: "维度一：数据质量",
                 text: "报表数据异常时，定位根因并修复的平均耗时（MTTR）？",
                 options: [
                     { letter: "A", text: "数天甚至数周，靠人工沟通" },
@@ -487,27 +487,27 @@
                 ]
             },
             {
-                dim: "维度一：数据质量与基础底座",
+                dim: "维度一：数据质量",
                 text: "数据标准的落地执行方式？",
                 options: [
-                    { letter: "A", text: "无统一标准，系统间“同名不同义”普遍" },
+                    { letter: "A", text: "无统一标准，系统间「同名不同义」普遍" },
                     { letter: "B", text: "有文档标准，但系统录入缺乏强制约束" },
                     { letter: "C", text: "核心主数据已标准化，长尾数据仍有漂移" },
                     { letter: "D", text: "标准嵌入开发流程，不合规数据无法进入数仓" }
                 ]
             },
             {
-                dim: "维度二：AI应用与智能化水平",
+                dim: "维度二：AI应用",
                 text: "非结构化数据（合同、工单、纪要）的处理状态？",
                 options: [
-                    { letter: "A", text: "处于“黑盒”状态，难以被系统化利用" },
+                    { letter: "A", text: "处于「黑盒」状态，难以被系统化利用" },
                     { letter: "B", text: "依靠人工或外包手工打标签" },
                     { letter: "C", text: "使用规则引擎或模板半自动化提取" },
                     { letter: "D", text: "引入NLP或大模型技术，自动结构化" }
                 ]
             },
             {
-                dim: "维度二：AI应用与智能化水平",
+                dim: "维度二：AI应用",
                 text: "在数据治理核心环节（分类分级、质检），AI技术的应用程度？",
                 options: [
                     { letter: "A", text: "几乎为零，完全依赖人工" },
@@ -517,7 +517,7 @@
                 ]
             },
             {
-                dim: "维度二：AI应用与智能化水平",
+                dim: "维度二：AI应用",
                 text: "业务人员获取数据进行分析的交互方式？",
                 options: [
                     { letter: "A", text: "向IT提需求，排期等待开发" },
@@ -527,7 +527,7 @@
                 ]
             },
             {
-                dim: "维度三：组织协同与数据文化",
+                dim: "维度三：组织协作",
                 text: "业务部门对数据治理的配合度与认责情况？",
                 options: [
                     { letter: "A", text: "非常抵触，认为是IT增加工作量" },
@@ -537,7 +537,7 @@
                 ]
             },
             {
-                dim: "维度三：组织协同与数据文化",
+                dim: "维度三：组织协作",
                 text: "企业内部的数据素养与决策文化？",
                 options: [
                     { letter: "A", text: "决策靠经验直觉，缺乏数据氛围" },
@@ -547,7 +547,7 @@
                 ]
             },
             {
-                dim: "维度三：组织协同与数据文化",
+                dim: "维度三：组织协作",
                 text: "贵司数据治理组织或岗位的实际运行现状？",
                 options: [
                     { letter: "A", text: "没有，所有工作由IT兼职" },
@@ -557,7 +557,7 @@
                 ]
             },
             {
-                dim: "维度四：数据资产运营与价值",
+                dim: "维度四：ROI量化",
                 text: "企业内部数据资产的共享与复用机制？",
                 options: [
                     { letter: "A", text: "数据孤岛严重，跨部门获取需线下拷贝" },
@@ -567,7 +567,7 @@
                 ]
             },
             {
-                dim: "维度四：数据资产运营与价值",
+                dim: "维度四：ROI量化",
                 text: "是否具备数据资产价值评估与量化体系？",
                 options: [
                     { letter: "A", text: "无概念，数据被视为IT副产品" },
@@ -577,7 +577,7 @@
                 ]
             },
             {
-                dim: "维度四：数据资产运营与价值",
+                dim: "维度四：ROI量化",
                 text: "数据治理投入的产出比（ROI）呈现何种状态？",
                 options: [
                     { letter: "A", text: "纯成本中心，无法提供可量化的产出证明" },
@@ -587,7 +587,7 @@
                 ]
             },
             {
-                dim: "维度五：安全合规与风险控制",
+                dim: "维度五：治理成熟度",
                 text: "敏感数据（隐私、机密）的安全防护现状？",
                 options: [
                     { letter: "A", text: "靠制度与人工，权限粗放" },
@@ -597,7 +597,7 @@
                 ]
             },
             {
-                dim: "维度五：安全合规与风险控制",
+                dim: "维度五：治理成熟度",
                 text: "面对数据安全法规，企业的合规与响应现状？",
                 options: [
                     { letter: "A", text: "尚未系统建设，靠事后补救" },
@@ -607,7 +607,7 @@
                 ]
             },
             {
-                dim: "维度五：安全合规与风险控制",
+                dim: "维度五：治理成熟度",
                 text: "当发生数据泄露或违规访问风险时，企业的响应机制？",
                 options: [
                     { letter: "A", text: "事后才发现，缺乏预警，仅做被动补救" },
@@ -690,7 +690,7 @@
         }
 
         function generateDiagnosis(scores) {
-            const dimNames = ["数据基础", "AI应用", "组织协同", "资产运营", "安全合规"];
+            const dimNames = ["数据质量", "治理成熟度", "AI应用", "组织协作", "ROI量化"];
             let maxIdx = 0, minIdx = 0;
             scores.forEach((s, i) => {
                 if (s > scores[maxIdx]) maxIdx = i;
@@ -798,7 +798,7 @@ localStorage.setItem('assessment_shared', 'true');
         }
 
         // 显示提示
-        const dimNames = ["数据基础", "AI应用", "组织协同", "资产运营", "安全合规"];
+        const dimNames = ["数据质量", "治理成熟度", "AI应用", "组织协作", "ROI量化"];
         renderQuestion();
     </script>
 </body>
